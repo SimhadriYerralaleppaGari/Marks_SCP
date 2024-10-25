@@ -1,0 +1,187 @@
+<!-- templates/edit_semester.html -->
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-2xl font-bold mb-6">Edit Semester</h2>
+        
+        <form method="POST">
+            <div class="mb-6">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="semester_name">
+                    Semester Name
+                </label>
+                <input type="text" name="semester_name" value="{{ semester.name }}" required
+                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+            </div>
+            
+            <div class="mb-6">
+                <h3 class="text-xl font-bold mb-4">Existing Subjects</h3>
+                <div id="existing_subjects">
+                    {% for subject in semester.subjects %}
+                    <div class="mb-6 p-4 border rounded-lg">
+                        <div class="flex justify-between items-center mb-4">
+                            <h4 class="font-bold">Subject {{ loop.index }}</h4>
+                            <button type="button" onclick="removeSubject(this)"
+                                    class="text-red-500 hover:text-red-700">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                        
+                        <input type="hidden" name="{{ subject.id }}" value="1">
+                        
+                        <div class="mb-4">
+                            <label class="block text-gray-700 text-sm font-bold mb-2">Credits</label>
+                            <input type="number" name="credits_{{ subject.id }}" 
+                                   value="{{ subject.credits }}" min="1" max="6" required
+                                   class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="block text-gray-700 text-sm font-bold mb-2">Input Type</label>
+                            <select name="input_type_{{ subject.id }}" 
+                                    onchange="toggleInputType(this, '{{ subject.id }}')"
+                                    class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                <option value="grade" {% if subject.grade %}selected{% endif %}>Grade</option>
+                                <option value="marks" {% if subject.marks %}selected{% endif %}>Marks</option>
+                            </select>
+                        </div>
+                        
+                        <div id="grade_input_{{ subject.id }}" 
+                             class="mb-4 {% if not subject.grade %}hidden{% endif %}">
+                            <label class="block text-gray-700 text-sm font-bold mb-2">Grade</label>
+                            <select name="grade_{{ subject.id }}" 
+                                    class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                <option value="S" {% if subject.grade == 'S' %}selected{% endif %}>S (10.0)</option>
+                                <option value="A1" {% if subject.grade == 'A1' %}selected{% endif %}>A1 (9.5)</option>
+                                <option value="A2" {% if subject.grade == 'A2' %}selected{% endif %}>A2 (9.0)</option>
+                                <option value="A3" {% if subject.grade == 'A3' %}selected{% endif %}>A3 (8.5)</option>
+                                <option value="B1" {% if subject.grade == 'B1' %}selected{% endif %}>B1 (8.0)</option>
+                                <option value="C1" {% if subject.grade == 'C1' %}selected{% endif %}>C1 (7.0)</option>
+                                <option value="C2" {% if subject.grade == 'C2' %}selected{% endif %}>C2 (6.5)</option>
+                                <option value="D1" {% if subject.grade == 'D1' %}selected{% endif %}>D1 (6.0)</option>
+                                <option value="D2" {% if subject.grade == 'D2' %}selected{% endif %}>D2 (5.5)</option>
+                                <option value="F" {% if subject.grade == 'F' %}selected{% endif %}>F (0.0)</option>
+                                <option value="AB" {% if subject.grade == 'AB' %}selected{% endif %}>AB (0.0)</option>
+                            </select>
+                        </div>
+                        
+                        <div id="marks_input_{{ subject.id }}" 
+                             class="mb-4 {% if not subject.marks %}hidden{% endif %}">
+                            <label class="block text-gray-700 text-sm font-bold mb-2">Marks</label>
+                            <input type="number" name="marks_{{ subject.id }}" 
+                                   value="{{ subject.marks }}" min="0" max="100" step="0.01"
+                                   class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                <h3 class="text-xl font-bold mb-4">Add New Subjects</h3>
+                <div id="new_subjects"></div>
+                <input type="hidden" name="new_subjects_count" id="new_subjects_count" value="0">
+                <button type="button" onclick="addNewSubject()"
+                        class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                    Add Subject
+                </button>
+            </div>
+            
+            <div class="flex justify-center space-x-4">
+                <button type="submit" 
+                        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                    Save Changes
+                </button>
+                <a href="{{ url_for('dashboard') }}" 
+                   class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function toggleInputType(select, id) {
+    const gradeInput = document.getElementById(`grade_input_${id}`);
+    const marksInput = document.getElementById(`marks_input_${id}`);
+    
+    if (select.value === 'grade') {
+        gradeInput.classList.remove('hidden');
+        marksInput.classList.add('hidden');
+    } else {
+        gradeInput.classList.add('hidden');
+        marksInput.classList.remove('hidden');
+    }
+}
+
+function removeSubject(button) {
+    if (confirm('Are you sure you want to remove this subject?')) {
+        button.closest('.mb-6').remove();
+    }
+}
+
+let newSubjectCount = 0;
+
+function addNewSubject() {
+    const container = document.getElementById('new_subjects');
+    const newSubject = document.createElement('div');
+    newSubject.className = 'mb-6 p-4 border rounded-lg';
+    
+    newSubject.innerHTML = `
+        <div class="flex justify-between items-center mb-4">
+            <h4 class="font-bold">New Subject</h4>
+            <button type="button" onclick="removeSubject(this)"
+                    class="text-red-500 hover:text-red-700">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+        
+        <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2">Credits</label>
+            <input type="number" name="new_credits_${newSubjectCount}" 
+                   min="1" max="6" required
+                   class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+        </div>
+        
+        <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2">Input Type</label>
+            <select name="new_input_type_${newSubjectCount}" 
+                    onchange="toggleInputType(this, 'new_${newSubjectCount}')"
+                    class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                <option value="grade">Grade</option>
+                <option value="marks">Marks</option>
+            </select>
+        </div>
+        
+        <div id="grade_input_new_${newSubjectCount}" class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2">Grade</label>
+            <select name="new_grade_${newSubjectCount}" 
+                    class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                <option value="S">S (10.0)</option>
+                <option value="A1">A1 (9.5)</option>
+                <option value="A2">A2 (9.0)</option>
+                <option value="A3">A3 (8.5)</option>
+                <option value="B1">B1 (8.0)</option>
+                <option value="C1">C1 (7.0)</option>
+                <option value="C2">C2 (6.5)</option>
+                <option value="D1">D1 (6.0)</option>
+                <option value="D2">D2 (5.5)</option>
+                <option value="F">F (0.0)</option>
+                <option value="AB">AB (0.0)</option>
+            </select>
+        </div>
+        
+        <div id="marks_input_new_${newSubjectCount}" class="mb-4 hidden">
+            <label class="block text-gray-700 text-sm font-bold mb-2">Marks</label>
+            <input type="number" name="new_marks_${newSubjectCount}" 
+                   min="0" max="100" step="0.01"
+                   class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+        </div>
+    `;
+    
+    container.appendChild(newSubject);
+    document.getElementById('new_subjects_count').value = ++newSubjectCount;
+}
+</script>
+{% endblock %}

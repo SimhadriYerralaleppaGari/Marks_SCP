@@ -1,0 +1,76 @@
+<!-- templates/add_subjects.html (continued) -->
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-2xl font-bold mb-6">Add Subjects</h2>
+        <form method="POST">
+            {% for i in range(num_subjects) %}
+            <div class="mb-6 p-4 border rounded-lg">
+                <h3 class="font-bold mb-4">Subject {{ i + 1 }}</h3>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Credits</label>
+                    <input type="number" name="credits_{{ i }}" min="1" max="6" required
+                           class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Input Type</label>
+                    <select name="input_type_{{ i }}" onchange="toggleInputType(this, {{ i }})"
+                            class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                        <option value="grade">Grade</option>
+                        <option value="marks">Marks</option>
+                    </select>
+                </div>
+                
+                <div id="grade_input_{{ i }}" class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Grade</label>
+                    <select name="grade_{{ i }}" 
+                            class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                        <option value="S">S (10.0)</option>
+                        <option value="A1">A1 (9.5)</option>
+                        <option value="A2">A2 (9.0)</option>
+                        <option value="A3">A3 (8.5)</option>
+                        <option value="B1">B1 (8.0)</option>
+                        <option value="C1">C1 (7.0)</option>
+                        <option value="C2">C2 (6.5)</option>
+                        <option value="D1">D1 (6.0)</option>
+                        <option value="D2">D2 (5.5)</option>
+                        <option value="F">F (0.0)</option>
+                        <option value="AB">AB (0.0)</option>
+                    </select>
+                </div>
+                
+                <div id="marks_input_{{ i }}" class="mb-4 hidden">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Marks</label>
+                    <input type="number" name="marks_{{ i }}" min="0" max="100" step="0.01"
+                           class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                </div>
+            </div>
+            {% endfor %}
+            
+            <div class="flex justify-center">
+                <button type="submit" 
+                        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                    Calculate SGPA
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function toggleInputType(select, index) {
+    const gradeInput = document.getElementById(`grade_input_${index}`);
+    const marksInput = document.getElementById(`marks_input_${index}`);
+    
+    if (select.value === 'grade') {
+        gradeInput.classList.remove('hidden');
+        marksInput.classList.add('hidden');
+    } else {
+        gradeInput.classList.add('hidden');
+        marksInput.classList.remove('hidden');
+    }
+}
+</script>
+{% endblock %}

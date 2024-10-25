@@ -1,0 +1,36 @@
+<!-- templates/cgpa_results.html -->
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-2xl font-bold mb-6">CGPA Results</h2>
+        
+        <div class="mb-6">
+            <h3 class="text-xl font-semibold mb-4">Semester-wise SGPA</h3>
+            <div class="grid gap-4">
+                {% for semester in semesters %}
+                <div class="border rounded-lg p-4 flex justify-between items-center">
+                    <h4 class="font-bold">{{ semester.name }}</h4>
+                    <p>SGPA: {{ semester.sgpa }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="bg-green-100 p-4 rounded-lg mb-4">
+            <p class="text-xl font-bold">CGPA: {{ cgpa }}</p>
+        </div>
+        
+        <div class="bg-blue-100 p-4 rounded-lg">
+            <p class="text-xl font-bold">Percentage: {{ percentage }}%</p>
+        </div>
+        
+        <div class="mt-6 flex justify-center">
+            <a href="{{ url_for('dashboard') }}" 
+               class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

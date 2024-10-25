@@ -1,0 +1,46 @@
+<!-- templates/add_semester.html -->
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-md mx-auto">
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-2xl font-bold mb-6 text-center">Add New Semester</h2>
+        
+        <form method="POST">
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="semester_name">
+                    Semester Name
+                </label>
+                <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                       type="text" 
+                       name="semester_name" 
+                       required
+                       placeholder="e.g., Semester 1, First Semester, etc.">
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="num_subjects">
+                    Number of Subjects
+                </label>
+                <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                       type="number" 
+                       name="num_subjects" 
+                       min="1" 
+                       max="10" 
+                       required
+                       placeholder="Enter number of subjects">
+            </div>
+            
+            <div class="flex justify-between items-center">
+                <button type="submit" 
+                        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                    Continue
+                </button>
+                <a href="{{ url_for('dashboard') }}" 
+                   class="text-blue-500 hover:text-blue-700 font-bold">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
