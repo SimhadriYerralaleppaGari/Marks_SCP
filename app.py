@@ -4,12 +4,45 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import logout_user
+from config import Config
+from datetime import timedelta
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+
+
+
 app = Flask(__name__)
+app.config.from_object(Config)
 app.config['SECRET_KEY'] = 'your-secret-key'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///grades.db'
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
+
+
+
+
+# Add rate limiting
+limiter = Limiter(
+    app=app,
+    key_func=get_remote_address,
+    default_limits=["200 per day", "50 per hour"]
+)
+
+# Add session configuration
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
+app.config['SESSION_COOKIE_SECURE'] = True
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+
+# Add security headers
+@app.after_request
+def add_security_headers(response):
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+    return response
 
 # Database Models
 class User(UserMixin, db.Model):
@@ -265,6 +298,22 @@ def edit_semester(semester_id):
         return redirect(url_for('dashboard'))
         
     return render_template('edit_semester.html', semester=semester)
+
+
+# Add to app.py
+
+@app.errorhandler(404)
+def not_found_error(error):
+    return render_template('errors/404.html'), 404
+
+@app.errorhandler(500)
+def internal_error(error):
+    db.session.rollback()
+    return render_template('errors/500.html'), 500
+
+@app.errorhandler(429)
+def ratelimit_handler(e):
+    return render_template('errors/429.html'), 429
 
 @app.route('/delete_semester/<int:semester_id>')
 @login_required
